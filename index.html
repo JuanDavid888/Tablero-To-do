@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tablero To-Do</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+    <header>
+        <h1>Tablero de Tareas</h1>
+
+        <div class="top-actions">
+            <input type="text" id="searchInput" placeholder="Buscar tarea..." />
+            <button id="btnOpenModal">Agregar Tarea</button>
+        </div>
+    </header>
+
+    <main class="board">
+        <!-- Columna: Hacer -->
+        <section class="column" data-status="hacer">
+            <h2>Hacer</h2>
+            <div class="task-list" id="hacer"></div>
+        </section>
+
+        <!-- Columna: Haciendo -->
+        <section class="column" data-status="haciendo">
+            <h2>Haciendo</h2>
+            <div class="task-list" id="haciendo"></div>
+        </section>
+
+        <!-- Columna: Hecho -->
+        <section class="column" data-status="hecho">
+            <h2>Hecho</h2>
+            <div class="task-list" id="hecho"></div>
+        </section>
+    </main>
+
+    <!-- Modal para crear/editar tareas -->
+    <div id="taskModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nueva tarea</h3>
+
+            <form id="taskForm">
+                <input type="hidden" id="taskId" />
+
+                <label>Nombre*</label>
+                <input type="text" id="taskName" required />
+
+                <label>Descripción*</label>
+                <textarea id="taskDescription" required></textarea>
+
+                <label>Estimación (horas)</label>
+                <input type="number" id="taskHours" min="1" />
+
+                <label>Prioridad (1-10)*</label>
+                <input type="number" id="taskPriority" min="1" max="10" required />
+
+                <label>Responsable(s)</label>
+                <input type="text" id="taskResponsibles" placeholder="Separar por comas" />
+
+                <div class="modal-buttons">
+                    <button type="submit" id="saveTaskBtn">Guardar</button>
+                    <button type="button" id="cancelModalBtn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
