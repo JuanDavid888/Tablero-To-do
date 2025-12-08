@@ -36,9 +36,21 @@ input, textarea, button {
     gap: 20px;
 }
 
+/* Colores de fondo suaves por columna */
+.column[data-status="hacer"] {
+    background: #E8F1FF; /* azul MUY suave */
+}
+
+.column[data-status="haciendo"] {
+    background: #FFF4D6; /* amarillo suave */
+}
+
+.column[data-status="hecho"] {
+    background: #E4F8ED; /* verde suave */
+}
+
 .column {
     flex: 1;
-    background: #ffffff;
     padding: 15px;
     border-radius: 8px;
     min-height: 500px;
@@ -46,9 +58,28 @@ input, textarea, button {
     flex-direction: column;
 }
 
-.column h2 {
-    text-align: center;
-    margin-bottom: 15px;
+/* -----------------------------------------
+   Encabezados de columna con colores fuertes
+------------------------------------------ */
+.column[data-status="hacer"] h2 {
+    background: #2D7FF9;  /* azul */
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.column[data-status="haciendo"] h2 {
+    background: #F4B400; /* amarillo/naranja */
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.column[data-status="hecho"] h2 {
+    background: #0F9D58; /* verde */
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
 }
 
 .task-list {
@@ -67,6 +98,19 @@ input, textarea, button {
     border-radius: 8px;
     border: 1px solid #ddd;
     cursor: grab;
+}
+
+/* Bordes laterales del color de la columna */
+.column[data-status="hacer"] .task {
+    border-left: 5px solid #2D7FF9;
+}
+
+.column[data-status="haciendo"] .task {
+    border-left: 5px solid #F4B400;
+}
+
+.column[data-status="hecho"] .task {
+    border-left: 5px solid #0F9D58;
 }
 
 .task.dragging {
