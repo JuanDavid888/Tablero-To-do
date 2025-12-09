@@ -1,20 +1,21 @@
 /* ==========================================================
-   Tablero To-Do
+   Tablero To-Do con MockAPI
    Funcionalidades:
-   - Crear tareas
-   - Editar
-   - Arrastrar entre columnas
-   - Guardar en localStorage
+   - Crear tareas (POST)
+   - Editar tareas (PUT)
+   - Eliminar tareas (DELETE)
+   - Arrastrar entre columnas (PUT)
    - Buscador
 =========================================================== */
 
 let tasks = [];
+const API_URL = "https://69383f124618a71d77cf8629.mockapi.io/api/toDo/tareas";
 
 /* -----------------------------------------
    Inicialización
 ------------------------------------------ */
-document.addEventListener("DOMContentLoaded", () => {
-    loadFromLocalStorage();
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadFromAPI();
     renderAllTasks();
     setupEventListeners();
 });
@@ -39,7 +40,6 @@ function openCreateModal() {
     document.getElementById("modalTitle").textContent = "Nueva tarea";
     document.getElementById("taskForm").reset();
     document.getElementById("taskId").value = "";
-
     document.getElementById("taskModal").classList.remove("hidden");
 }
 
@@ -50,7 +50,7 @@ function openEditModal(task) {
     document.getElementById("taskName").value = task.name;
     document.getElementById("taskDescription").value = task.description;
     document.getElementById("taskHours").value = task.hours || "";
-    document.getElementById("taskPriority").value = task.priority;
+    document.getElementById("taskPriority").value = task.priority || "";
     document.getElementById("taskResponsibles").value = task.responsibles || "";
 
     document.getElementById("taskModal").classList.remove("hidden");
@@ -61,15 +61,14 @@ function closeModal() {
 }
 
 /* -----------------------------------------
-   Guardar / Editar Tarea
+   Guardar / Editar Tarea (MockAPI)
 ------------------------------------------ */
-function saveTask(e) {
+async function saveTask(e) {
     e.preventDefault();
 
     const id = document.getElementById("taskId").value;
 
     const taskData = {
-        id: id ? id : Date.now().toString(),
         name: document.getElementById("taskName").value,
         description: document.getElementById("taskDescription").value,
         hours: document.getElementById("taskHours").value,
@@ -79,17 +78,32 @@ function saveTask(e) {
     };
 
     if (id) {
-        // edición
-        const index = tasks.findIndex(t => t.id === id);
-        tasks[index] = taskData;
+        // ✨ EDITAR (PUT)
+        await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(taskData)
+        });
     } else {
-        // creación
-        tasks.push(taskData);
+        // ✨ CREAR (POST)
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(taskData)
+        });
     }
 
-    saveToLocalStorage();
+    await loadFromAPI();
     renderAllTasks();
     closeModal();
+}
+
+/* -----------------------------------------
+   Obtener tareas desde MockAPI
+------------------------------------------ */
+async function loadFromAPI() {
+    const res = await fetch(API_URL);
+    tasks = await res.json();
 }
 
 /* -----------------------------------------
@@ -123,7 +137,6 @@ function renderTask(task) {
     `;
 
     addDragEvents(div);
-
     container.appendChild(div);
 }
 
@@ -149,9 +162,9 @@ function editTask(id) {
     openEditModal(task);
 }
 
-function deleteTask(id) {
-    tasks = tasks.filter(t => t.id !== id);
-    saveToLocalStorage();
+async function deleteTask(id) {
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    await loadFromAPI();
     renderAllTasks();
 }
 
@@ -162,16 +175,21 @@ function setupDragAndDrop() {
     const columns = document.querySelectorAll(".task-list");
 
     columns.forEach(col => {
-        col.addEventListener("dragover", e => {
-            e.preventDefault();
-        });
+        col.addEventListener("dragover", e => e.preventDefault());
 
-        col.addEventListener("drop", e => {
+        col.addEventListener("drop", async e => {
             const id = e.dataTransfer.getData("id");
             const task = getTaskById(id);
             task.status = col.id;
 
-            saveToLocalStorage();
+            // Actualizar estado en MockAPI
+            await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(task)
+            });
+
+            await loadFromAPI();
             renderAllTasks();
         });
     });
@@ -183,7 +201,7 @@ function addDragEvents(element) {
         element.classList.add("dragging");
     });
 
-    element.addEventListener("dragend", e => {
+    element.addEventListener("dragend", () => {
         element.classList.remove("dragging");
     });
 }
@@ -191,14 +209,6 @@ function addDragEvents(element) {
 /* -----------------------------------------
    Utils
 ------------------------------------------ */
-function saveToLocalStorage() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-
-function loadFromLocalStorage() {
-    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-}
-
 function getTaskById(id) {
     return tasks.find(t => t.id === id);
 }
